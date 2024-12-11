@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String @db.VarChar(250)
+  email String @unique @db.VarChar(450)
+  password String @db.VarChar(255)
+  pictureUrl String? @db.VarChar(400)
+  refreshToken String? @db.VarChar(700)
+  tokenIssueDate String? @db.VarChar(50)
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model Client {
+  id String @id @default(uuid())
+  name String @db.VarChar(250)
+  email String @unique @db.VarChar(450)
+  phoneNumber String @db.VarChar(16)
+  address String @db.VarChar(350)
+  city String @db.VarChar(50)
+  cpf String? @unique @db.VarChar(11)
+  rg String? @unique @db.VarChar(14)
+  instagram String? @db.VarChar(100)
+  children Child[]
+  contracts Contract[]
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model Child {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(250)
+  caregiver Client @relation(fields: [caregiverId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  caregiverId String  
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model Contract {
+  id String @id @default(uuid())
+  contractUrl String? @db.VarChar(400)
+  isSigned Boolean? @default(false)
+  client Client @relation(fields: [clientId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  clientId String 
+  event Event @relation(fields: [eventId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  eventId Int 
+  records FinancialRecord[]
+  package String @db.VarChar(30)//pacotes de serviços: "NUVEM", "CÉU", "SOL", "LUA", "COMETA"
+  contractService ContractService[]
+  value Float
+  date String @db.VarChar(20)
+  status String @default("PENDENTE") //status possíveis: "PENDENTE", "PAGO", "CANCELADO", "PARCIAL"
+  paymentMethod String? //pagamentos possíveis "CARTÃO", "PIX"
+  splitPayment Boolean? //para pagamentos divididos em PIX 2x por exemplo
+  paymentDueDate String @db.VarChar(20)
+  observations String? @db.Text
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(250)
+  type String @db.VarChar(100) //tipos possíveis: "ENSAIO", "ANIVERSÁRIO", "EVENTOS ESPECIAIS"
+  location String @db.VarChar(250)
+  date String @db.VarChar(20)
+  hour String @db.VarChar(20)
+  duration Int 
+  observations String? @db.Text
+  contracts Contract[]
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model ContractService {
+  id Int @id @default(autoincrement())
+  contract Contract? @relation(fields: [contractId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  contractId String
+  extraService ExtraService? @relation(fields: [extraServiceId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  extraServiceId Int
+}
+
+model ExtraService {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(150)
+  price Float
+  contractService ContractService[]
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model FinancialRecord {
+  id String @id @default(uuid())
+  type String @db.VarChar(100)//tipo da transação: "PAGAMENTO", "RECEITA", "DESPESA"
+  contract Contract? @relation(fields: [contractId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  contractId String?
+  expenseCategory ExpenseCategory? @relation(fields: [expenseCategoryId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  expenseCategoryId Int?
+  revenueCategory RevenueCategory? @relation(fields: [revenueCategoryId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  revenueCategoryId Int?
+  amount Float
+  month Int 
+  year Int
+  status String @default("PENDENTE") //tipos de status: "PENDENTE", "PAGO", "CANCELADO", "PARCIAL"
+  paymentMethod String?
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model ExpenseCategory {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(150)
+  records FinancialRecord[]
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
+
+model RevenueCategory {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(150)
+  records FinancialRecord[]
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @db.Timestamp(0)
+}
