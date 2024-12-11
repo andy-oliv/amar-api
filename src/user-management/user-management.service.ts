@@ -42,7 +42,7 @@ export class UserManagementService {
       from: 'amarinfancias@gmail.com',
       subject: 'Atualização de senha',
       text: 'Olá! Este é um email automático enviado pelo sistema da Amar Infâncias. Favor acessar este endereço para fazer o processo de atualização de senha. Caso você não tenha feito esta solicitação, ignore este email.',
-      html: `Olá! Este é um email automático enviado pelo sistema da Amar Infâncias. Favor acessar <a href="http://localhost:3000/auth?resetToken=${token}" target="_blank">este endereço</a> para fazer o processo de atualização de senha. <br><br>Caso você não tenha feito esta solicitação, ignore este email.<br><br><strong>Com amor,</strong><br><img src="${__dirname + 'public\logo.png'}" style="width:500px;"><br><a href="https://www.instagram.com/amarinfancias/?igshid=YmMyMTA2M2Y%3D" target="_blank">Instagram</a><br><a href="https://wa.me/message/6NC6NPP2C352H1" target="_blank">Whatsapp</a>`,
+      html: `Olá! Este é um email automático enviado pelo sistema da Amar Infâncias. Favor acessar <a href="http://localhost:3000/auth?resetToken=${token}" target="_blank">este endereço</a> para fazer o processo de atualização de senha. <br><br>Caso você não tenha feito esta solicitação, ignore este email.<br><br><strong>Com amor,</strong><br><img src="${'/logo.png'}" style="width:500px;"><br><a href="https://www.instagram.com/amarinfancias/?igshid=YmMyMTA2M2Y%3D" target="_blank">Instagram</a><br><a href="https://wa.me/message/6NC6NPP2C352H1" target="_blank">Whatsapp</a>`,
     };
     try {
       await sgMail.send(msg);
